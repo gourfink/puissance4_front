@@ -34,6 +34,7 @@
 
 
 .game{
+  position: relative;
   margin: 10% auto;
   max-width: 700px;
   border-right: 1px solid #dedede;
@@ -48,11 +49,38 @@
 }
 
 .game .col span{
+  width: 50px;
+  height: 50px;
+  display: block;
+  border-radius: 50%;
+  margin: auto;
+  margin-top: 25px;
+}
+
+.noplayer{
+  display: none;
+}
+
+.player1{
+  background: red;
+}
+
+.player2{
+  background: yellow;
+}
+
+.youwinn{
     position: absolute;
-    bottom: 0px;
-    right: 0px;
-    padding: 2px 8px;
-    font-size: 9px;
-    background: rgba(51, 51, 51, 0.7);
-    color: #fff;
+    top: 0;
+    margin: auto;
+    right: 0;
+    left: 0;
+    bottom: auto;
+    width: 700px;
+    height: 600px;
+    line-height: 660px;
+    font-size: 45px;
+    background: rgba(70, 124, 206, 0.5);
+    font-weight: bold;
+    color: #ffffff;
 }

@@ -2,13 +2,13 @@ import { Container, Row, Col, ListGroup } from 'react-bootstrap';
 import React from 'react';
 
 const axios = require('axios');
-const baseurl = 'http://192.168.99.1:8000';
+const baseurl = 'http://127.0.0.1:8000';
 
 export default class Grid extends React.Component{
 
 	constructor(props) {
 		super(props);
-		this.state = {grid: [],p:1};
+		this.state = {grid: [],p:1,winn:false};
 	}
 
 	componentDidMount(){
@@ -18,7 +18,7 @@ export default class Grid extends React.Component{
 	gridPopulation(){
 		var self = this;
 		var datas = this.state.grid;
-		console.log(datas);
+
 		var grid = [];
 		let c = 0;
 		for(let i = 0; i < 6; i++){
@@ -26,13 +26,13 @@ export default class Grid extends React.Component{
 			for(let j = 0; j < 7; j++ ){
 				switch(datas[c]){
 					case false:
-					col.push(<Col key={c} onClick={() => self.move(c)} data-id={c}><span>{c}</span></Col>);
+					col.push(<Col key={c} onClick={self.move.bind(self, c)} data-id={c}><span className="noplayer"></span></Col>);
 					break;
-					case 1:
-					col.push(<Col key={c} onClick={() => self.move(c)} data-id={c}><span>Joueur 1</span></Col>);
+					case '1':
+					col.push(<Col key={c} onClick={self.move.bind(self, c)} data-id={c}><span className="player1"></span></Col>);
 					break;
-					case 2:
-					col.push(<Col key={c} onClick={() => self.move(c)} data-id={c}><span>Joueur 2</span></Col>);
+					case '2':
+					col.push(<Col key={c} onClick={self.move.bind(self, c)} data-id={c}><span className="player2"></span></Col>);
 					break;
 				}
 				c++;
@@ -42,28 +42,30 @@ export default class Grid extends React.Component{
 
 		this.setState({
 			grid:grid,
-			p:this.state.p
+			p:this.state.p,
+			winn:this.state.winn
 		});
 	}
 
-	move(id){
+	move = (id, e) => {
 		var self = this;
 		axios.get(baseurl+'/move', {
 			params: {
 				p: this.state.p,
-				m:id
-
+				m: id
 			}
 		})
 		.then(function (response) {
-			self.gridRefresh();
-			var p;
-			if(self.state.p == 1){
-				p = 2;
-			}else{
-				p = 1;
+			if( response.data.auth === true ){
+				self.gridRefresh();
+				var p;
+				if(self.state.p == 1){
+					p = 2;
+				}else{
+					p = 1;
+				}
+				self.setState({ p:p, winn:response.data.winn })
 			}
-			self.setState({ p:p })
 		});  
 	}
 
@@ -75,15 +77,32 @@ export default class Grid extends React.Component{
 			self.gridPopulation();
 		});
 	}
+	
+
+	clearGame(e){
+		var self = this;
+		axios.get(baseurl+'/clear')
+		.then(function (response) {
+			self.gridRefresh();
+			self.setState({ grid: [],p:1,winn:false })
+		});
+	}
 
 
 	render() {
+
+		let youWinn;
+		if( this.state.winn !== false ){
+			youWinn = <div className="youwinn">Le Joueur {this.state.winn} gagne :) </div>
+		}
 
 		return(
 			<div className="game">
 			<Container>
 			{ this.state.grid }
 			</Container>
+			{youWinn}
+			<div>Joueur {this.state.p} <button onClick={this.clearGame.bind(this)} >Recommencer</button></div>
 			</div>
 			);
 	}
